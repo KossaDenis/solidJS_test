@@ -1,7 +1,8 @@
 import axios from "axios"
-import { createSignal, createEffect } from "solid-js";
+import { createSignal, createEffect, Show } from "solid-js";
 import MyButton from "../UI/MyButton/MyButton";
 import MyInput from "../UI/MyInput/MyInput";
+import MyModal from "../UI/MyModal/MyModal";
 import PostsList from "./PostsList/PostsList";
 
 const Posts = () => {
@@ -9,11 +10,11 @@ const Posts = () => {
     const [posts, setPosts] = createSignal([])
     const [title, setTitle] = createSignal('')
     const [body, setBody] = createSignal('')
-    const [text, setText] = createSignal('')
+    const [modal, setModal] = createSignal(false)
 
     createEffect(() => {
         fetchPosts()
-    }, [])
+    })
 
     async function fetchPosts() {
         try {
@@ -36,35 +37,36 @@ const Posts = () => {
         }
         setTitle('')
         setBody('')
+        setModal(false)
     }
 
     function removePost(post) {
         setPosts(posts().filter(p => p.id !== post.id))
     }
 
-    createEffect(() => {
-        if (posts().length == 0) {
-            setText('Post list is empty')
-        } else {
-            setText('')
-        }
-    }, [posts()])
-
     return (
         <div>
-            <div className=" mb-4 ">
-                <MyInput
-                    value={title()}
-                    onChange={e => setTitle(e.target.value)}
-                    placeholder="Title" />
-                <MyInput
-                    value={body()}
-                    onChange={e => setBody(e.target.value)}
-                    placeholder="Body" />
-                <MyButton script={addNewPost}>Create Post</MyButton>
+            <div class="mb-4">
+                <div class={'flex justify-end'}>
+                    <MyButton script={() => setModal(true)}>New Post</MyButton>
+                </div>
+                <MyModal modal={modal} setModal={setModal} >
+                    <MyInput
+                        value={title()}
+                        onChange={e => setTitle(e.target.value)}
+                        placeholder="Title" />
+                    <MyInput
+                        value={body()}
+                        onChange={e => setBody(e.target.value)}
+                        placeholder="Body" />
+                    <div class={'flex justify-end'}>
+                        <MyButton script={addNewPost}>Create Post</MyButton>
+                    </div>
+                </MyModal>
             </div>
-            <PostsList removePost={removePost} posts={posts} />
-            <h1 className=" text-xl">{text()}</h1>
+            <Show when={posts().length !== 0} fallback={<div class={'text-xl'}>Post list is empty</div>}>
+                <PostsList removePost={removePost} posts={posts} />
+            </Show>
         </div>
     )
 }

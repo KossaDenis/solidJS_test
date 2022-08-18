@@ -4,6 +4,10 @@ module.exports = {
     "./src/**/*.{js,jsx,ts,tsx}",
   ],
   theme: {
+    screens: {
+      'mobile': '320px',
+      'tablet': '768px'
+    },
     extend: {},
   },
   plugins: [],
